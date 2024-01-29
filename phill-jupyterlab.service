@@ -1,0 +1,16 @@
+[Unit]
+Description=Jupyterlab Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker stop jupyter-lab
+ExecStartPre=-/usr/bin/docker rm jupyter-lab
+
+# Standalone command
+ExecStart=/usr/bin/docker run --rm --name=jupyter-lab --net=host -v "/home/phill/projects/phills_jupyterlab/workingarea:/workingarea" --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 phills-jupyterlab jupyterlab
+
+[Install]
+WantedBy=multi-user.target
