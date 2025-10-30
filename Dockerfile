@@ -3,7 +3,7 @@ FROM nvcr.io/nvidia/tensorflow:23.12-tf2-py3
 RUN apt-get update
 RUN apt-get install -y openjdk-17-jdk
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install matplotlib pyqt5 jupyter seaborn awscli bcrypt nbconvert matplotlib nbconvert[qtpdf] nbconvert[webpdf] pymongo boto3 psycopg2-binary jupyterthemes
+RUN python3 -m pip install matplotlib pyqt5 jupyter seaborn awscli bcrypt nbconvert matplotlib nbconvert[qtpdf] nbconvert[webpdf] pymongo boto3 psycopg2-binary jupyterthemes pyspark pyspark[pandas_on_spark] pyspark[connect] pyspark[sql] pyspark-connect pyspark-client
 
 RUN playwright install chromium
 
