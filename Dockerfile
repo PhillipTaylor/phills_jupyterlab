@@ -8,12 +8,14 @@ RUN python3 -m pip install matplotlib jupyter seaborn mysql-connector-python
 #RUN groupadd user -g 1000
 #RUN useradd -u 1000 -g 1000 -m -d /home/user user
 
-#RUN touch /home/user/.jupyter/custom/custom.css
-#RUN chmod ugo+rwx /home/user/.jupyter/custom/custom.css
+RUN mkdir -p /home/ubuntu/.jupyter/custom/
+COPY custom.css /home/ubuntu/.jupyter/custom/custom.css
+RUN chown -R 1000:1000 /home/ubuntu/.jupyter
 
 USER 1000:1000
 
-WORKDIR /home/user
+ENV HOME=/home/ubuntu
+WORKDIR /home/ubuntu
 
 # Scala support
 #RUN curl -Lo coursier https://git.io/coursier-cli
