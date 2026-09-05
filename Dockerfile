@@ -1,17 +1,33 @@
-FROM nvcr.io/nvidia/tensorflow:23.12-tf2-py3
+FROM nvcr.io/nvidia/tensorflow:25.01-tf2-py3
 
 RUN apt-get update
-RUN apt-get install -y openjdk-17-jdk
+RUN apt-get install -y openjdk-17-jdk nodejs npm mariadb-client vim wget curl
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install matplotlib pyqt5 jupyter seaborn awscli bcrypt nbconvert matplotlib nbconvert[qtpdf] nbconvert[webpdf] pymongo boto3 psycopg2-binary jupyterthemes pyspark pyspark[pandas_on_spark] pyspark[connect] pyspark[sql] pyspark-connect pyspark-client
+RUN python3 -m pip install matplotlib pyqt5 jupyter seaborn awscli bcrypt nbconvert matplotlib nbconvert[qtpdf] nbconvert[webpdf] pymongo boto3 psycopg2-binary jupyterthemes pyspark pyspark[pandas_on_spark] pyspark[connect] pyspark[sql] pyspark-connect pyspark-client mysql-connector-python
 
 RUN playwright install chromium
 
-RUN groupadd user -g 1000
-RUN useradd -u 1000 -g 1000 -m -d /home/user user
+#RUN groupadd user -g 1000
+#RUN useradd -u 1000 -g 1000 -m -d /home/user user
+
+RUN mkdir -p /home/ubuntu/.jupyter/custom/
+COPY custom.css /home/ubuntu/.jupyter/custom/custom.css
+RUN chown -R 1000:1000 /home/ubuntu/.jupyter
+
 USER 1000:1000
 
-WORKDIR /home/user
-RUN curl -Lo coursier https://git.io/coursier-cli
-RUN chmod ugo+x coursier
-RUN ./coursier launch --fork almond -- --install
+ENV HOME=/home/ubuntu
+WORKDIR /home/ubuntu
+
+# Scala support
+RUN rm -rf ~/.cache/coursier
+RUN curl -fL https://github.com/VirtusLab/coursier-m1/releases/latest/download/cs-aarch64-pc-linux.gz | gzip -d > cs
+RUN chmod +x cs
+RUN yes | ./cs setup
+RUN ./cs launch --use-bootstrap almond:0.14.5 --scala 2.13 -- --install --id scala-2.13 --display-name "Scala 2.13 (Almond)"
+RUN ./cs launch --use-bootstrap almond:0.14.5 --scala 3.3.5 -- --install --id scala-3 --display-name "Scala 3 (Almond)"
+
+# Rust support
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN ~/.cargo/bin/cargo install evcxr_jupyter
+RUN ~/.cargo/bin/evcxr_jupyter --install
